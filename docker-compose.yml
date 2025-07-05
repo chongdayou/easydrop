@@ -1,0 +1,32 @@
+services:
+  easydrop-db:
+    image: postgres:15
+    container_name: easydrop-db
+    environment:
+      POSTGRES_USER: ${LOCAL_DB_USERNAME}
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD}
+      POSTGRES_DB: easydrop
+    networks:
+      - easydrop-network
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: easydrop-app
+    ports:
+      - "8080:8080"
+    environment:
+      LOCAL_DB_URL: ${LOCAL_DB_URL}
+      LOCAL_DB_USERNAME: ${LOCAL_DB_USERNAME}
+      LOCAL_DB_PASSWORD: ${LOCAL_DB_PASSWORD}
+    depends_on:
+      - easydrop-db
+    networks:
+      - easydrop-network
+
+networks:
+  easydrop-network:
+    driver: bridge

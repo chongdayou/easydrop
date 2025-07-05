@@ -1,4 +1,4 @@
-package com.tenav_code.easydrop;
+package com.tenavcode.easydrop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

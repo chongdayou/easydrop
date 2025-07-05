@@ -1,4 +1,4 @@
-package com.tenav_code.easydrop;
+package com.tenavcode.easydrop;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
