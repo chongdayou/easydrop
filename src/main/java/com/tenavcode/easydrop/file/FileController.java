@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api.files")
+@RequestMapping("/api/v1/files")
 public class FileController {
 
     private final FileMetaRepository repository;
@@ -22,13 +22,22 @@ public class FileController {
     @PostMapping
     // @RequestBody will convert incoming JSON into a FileMeta entity
     public ResponseEntity<FileMetaResponse> saveFileMeta(@RequestBody FileCreationRequest fileCreationRequest) {
-        FileMeta saved = fileService.createFile(fileCreationRequest);
-        FileMetaResponse response = new FileMetaResponse(
-                saved.getId(),
-                saved.getFileName(),
-                saved.getCreatedAt()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return fileService.createFile(fileCreationRequest)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FileMetaResponse> getFileById(@PathVariable Long id) {
+        return fileService.findFileById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<FileMetaResponse> deleteFileById(@PathVariable Long id) {
+        boolean deleted = fileService.removeFileById(id);
+        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping

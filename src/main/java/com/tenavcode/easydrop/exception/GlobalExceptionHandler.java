@@ -1,4 +1,4 @@
-package com.tenavcode.easydrop.Exception;
+package com.tenavcode.easydrop.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
