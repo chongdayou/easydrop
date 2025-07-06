@@ -3,14 +3,15 @@ package com.tenavcode.easydrop.file;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Entity
 @Table(name = "file_meta")
 public class FileMeta {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(
             name = "file_name",
@@ -24,6 +25,11 @@ public class FileMeta {
     )
     private LocalDateTime createdAt;
 
+    @PrePersist
+    public void ensureId() {
+        if (id == null) id = UUID.randomUUID();
+    }
+
     protected FileMeta() {
         // For JPA only
     }
@@ -33,8 +39,12 @@ public class FileMeta {
         this.fileName = fileName;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public LocalDateTime getCreatedAt() {

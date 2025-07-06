@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class FileService {
@@ -27,7 +28,7 @@ public class FileService {
         ));
     }
 
-    public Optional<FileMetaResponse> findFileById(Long id) {
+    public Optional<FileMetaResponse> findFileById(UUID id) {
         return repo.findById(id)
                 .map(file -> new FileMetaResponse(
                         file.getId(),
@@ -36,16 +37,11 @@ public class FileService {
                 ));
     }
 
-    public boolean removeFileById(Long id) {
+    public boolean removeFileById(UUID id) {
         if (!repo.existsById(id)) {
             return false;
         }
         repo.deleteById(id);
         return true;
-    }
-
-    public void deleteFileById(Long id) {
-        if (!repo.existsById(id)) throw new ResourceNotFoundException("File not found with id " + id);
-        repo.deleteById(id);
     }
 }

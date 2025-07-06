@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/files")
@@ -28,14 +29,14 @@ public class FileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FileMetaResponse> getFileById(@PathVariable Long id) {
+    public ResponseEntity<FileMetaResponse> getFileById(@PathVariable UUID id) {
         return fileService.findFileById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<FileMetaResponse> deleteFileById(@PathVariable Long id) {
+    public ResponseEntity<FileMetaResponse> deleteFileById(@PathVariable UUID id) {
         boolean deleted = fileService.removeFileById(id);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
