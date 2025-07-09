@@ -29,7 +29,9 @@ public class FileService {
     }
 
     public Optional<FileMetaResponse> findFileById(UUID id) {
-        return repo.findById(id)
+        Optional<FileMeta> saved = repo.findById(id);
+        if (saved.isEmpty()) throw new ResourceNotFoundException("File not found");
+        return saved
                 .map(file -> new FileMetaResponse(
                         file.getId(),
                         file.getFileName(),
@@ -39,7 +41,7 @@ public class FileService {
 
     public boolean removeFileById(UUID id) {
         if (!repo.existsById(id)) {
-            return false;
+            throw new ResourceNotFoundException("File not found");
         }
         repo.deleteById(id);
         return true;

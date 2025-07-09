@@ -20,11 +20,11 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @PostMapping
+    @PutMapping
     // @RequestBody will convert incoming JSON into a FileMeta entity
     public ResponseEntity<FileMetaResponse> saveFileMeta(@RequestBody FileCreationRequest fileCreationRequest) {
         return fileService.createFile(fileCreationRequest)
-                .map(ResponseEntity::ok)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -38,7 +38,7 @@ public class FileController {
     @DeleteMapping("/{id}")
     public ResponseEntity<FileMetaResponse> deleteFileById(@PathVariable UUID id) {
         boolean deleted = fileService.removeFileById(id);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping

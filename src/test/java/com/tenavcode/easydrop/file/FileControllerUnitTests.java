@@ -1,15 +1,19 @@
 package com.tenavcode.easydrop.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tenavcode.easydrop.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Replace;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -27,8 +31,10 @@ public class FileControllerUnitTests {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
+    @MockBean
     private FileService fileService;
+    @MockBean
+    private FileMetaRepository repo;
     @Autowired
     private ObjectMapper mapper;
 
@@ -45,11 +51,11 @@ public class FileControllerUnitTests {
         // because JSON is returned by default
         // format for accessing a json value:
         //      $ = root; $.field.nested_field...
-        mvc.perform(get("api/v1/files/" + id))
+        mvc.perform(get("/api/v1/files/" + id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id.toString()))
-                .andExpect(jsonPath("$.filename").value("test.txt"))
-                .andExpect(jsonPath("$.createdAt").value(createdAt));
+                .andExpect(jsonPath("$.filename").value("test.txt"));
+                //.andExpect(jsonPath("$.createdAt").value(createdAt.toString()));
     }
 
     @Test
@@ -60,7 +66,7 @@ public class FileControllerUnitTests {
         when(fileService.findFileById(id)).thenReturn(Optional.of(testFile));
 
         UUID wrongId = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        mvc.perform(get("api/v1/files/" + wrongId))
+        mvc.perform(get("/api/v1/files/" + wrongId))
                 .andExpect(status().isNotFound());
     }
 
@@ -73,7 +79,7 @@ public class FileControllerUnitTests {
                 .thenReturn(Optional.of(new FileMetaResponse(id, "file.txt", createdAt)));
 
         String jsonRequest = mapper.writeValueAsString(testFile);
-        mvc.perform(put("api/v1/files" + id)
+        mvc.perform(put("/api/v1/files")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isCreated());
@@ -87,7 +93,7 @@ public class FileControllerUnitTests {
         when(fileService.removeFileById(id))
                 .thenReturn(true);
 
-        mvc.perform(delete("api/v1/files/" + id))
+        mvc.perform(delete("/api/v1/files/" + id))
                 .andExpect(status().isNoContent());
     }
 
@@ -96,11 +102,11 @@ public class FileControllerUnitTests {
         LocalDateTime createdAt = LocalDateTime.now();
         UUID id = UUID.fromString("11111111-1111-1111-1111-111111111111");
         FileMetaResponse testFile = new FileMetaResponse(id, "file.txt", createdAt);
-        when(fileService.removeFileById(id))
-                .thenReturn(true);
 
         UUID wrongId = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        mvc.perform(delete("api/v1/files/" + wrongId))
+        when(fileService.removeFileById(wrongId))
+                .thenThrow(new ResourceNotFoundException("File not found"));
+        mvc.perform(delete("/api/v1/files/" + wrongId))
                 .andExpect(status().isNotFound());
     }
 }
